@@ -1,0 +1,48 @@
+# SIH26141 — dependency manifest
+#
+# Stage: prerequisite validation (pre-Milestone-1).
+# Target platform: CPython 3.13.5, Windows x86-64 (win_amd64).
+#
+# Wheel availability was VERIFIED against PyPI metadata, not assumed:
+#   - qiskit 2.5.2 ships qiskit-2.5.2-cp310-abi3-win_amd64.whl
+#     (stable-ABI / abi3 wheel -> valid on CPython 3.10 through 3.13+,
+#      so it is installable on 3.13 despite no cp313-tagged build)
+#   - qiskit-aer 0.17.2 ships qiskit_aer-0.17.2-cp313-cp313-win_amd64.whl
+#   - numpy 2.5.3 ships numpy-2.5.3-cp313-cp313-win_amd64.whl
+#   - scipy 1.18.1 ships scipy-1.18.1-cp313-cp313-win_amd64.whl
+#
+# Dependency constraints satisfied:
+#   qiskit      requires numpy<3,>=2.0 ; scipy>=1.14 ; rustworkx>=0.15 ; dill ; stevedore
+#   qiskit-aer  requires qiskit>=1.1.0 ; numpy>=1.16.3 ; scipy>=1.0 ; psutil ; python-dateutil
+#
+# These pins become final only after a successful install inside the project venv.
+# No machine-learning dependency is present, by design (SIH requirement R7).
+
+qiskit==2.5.2
+qiskit-aer==0.17.2
+numpy==2.5.3
+scipy==1.18.1
+sympy==1.14.0
+pytest==9.1.1
+
+# ---- Milestone 7: backend API (FastAPI) ----
+#
+# Resolved against CPython 3.13 on win_amd64 and pinned. The API layer is an
+# application boundary over the M1-M6 engines; it adds no numerical, quantum or
+# statistical dependency, and no ML framework.
+#
+# fastapi/starlette/pydantic are the runtime stack.
+# uvicorn is the ASGI server used to run the app outside the test suite.
+# httpx2 is the test-only HTTP transport required by starlette's TestClient;
+#   starlette 1.6 deprecates the old httpx transport in favour of httpx2.
+# anyio is pinned below 4.15 on purpose: starlette 1.6's TestClient references
+#   anyio.abc.BlockingPortal, which anyio 4.15 deprecated. Without this pin
+#   every API test run emits a third-party DeprecationWarning. starlette
+#   declares anyio<5,>=3.6.2, so this pin is inside the supported range.
+
+fastapi==0.141.1
+starlette==1.6.0
+pydantic==2.13.5
+uvicorn==0.53.0
+anyio==4.14.2
+httpx2==2.12.0
